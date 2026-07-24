@@ -1,15 +1,20 @@
-import click, os
+import click, os, subprocess
 from pathlib import Path
 # Version 1
 @click.command()
 @click.option('-i','--directory',  type=click.Path(exists=True, file_okay=True,dir_okay=True),help='provides basic info on the directory')
 @click.option("-s","--project", type=click.Path(exists=True, file_okay=True,dir_okay=True),help='provides basic info on the directory')
-def cli(directory,project):
+@click.option("-g","--git", type=click.Path(exists=True, file_okay=True,dir_okay=True),help='provides git info on directory')
+def cli(directory,project,git):
     if directory:
         printStats(directory)
 
     if project:
         sizeOf(project)
+
+    if git:
+        gitInfo(git)
+
 
 
 def printStats(directory):
@@ -29,6 +34,40 @@ def sizeOf(project):
     click.echo("-------------")
     countLangFiles(project)
 
+def gitInfo(git):
+    click.echo("Git Status")
+    click.echo("----------")
+    #Current Branch
+    branch=gitRun(["rev-parse", "--abbrev-ref", "HEAD"], git)
+    #Files
+    modified=gitRun(["diff","--name-only"], git)
+    untracked = gitRun(["ls-files", "--others", "--exclude-standard"], git)
+    staged = gitRun(["diff", "--cached", "--name-only"], git)
+
+    #Commit
+    commit_raw = gitRun(["log", "-1", "--pretty=format:%H%n%an%n%ad%n%s"],git)
+    commit_parts = commit_raw.split("\n") if commit_raw else []
+    commit = {
+        "author": commit_parts[1] if len(commit_parts) > 1 else None,
+        "date": commit_parts[2] if len(commit_parts) > 2 else None,
+        "message": commit_parts[3] if len(commit_parts) > 3 else None,
+    }
+    
+    
+    click.echo(f"Current Branch: {branch}")
+    click.echo()
+    click.echo("Files")
+    click.echo("-----------")
+    click.echo(f"Modified:{modified.split("\n") if modified else []}")
+    click.echo(f"Untracked:{untracked.split("\n") if untracked else []}")
+    click.echo(f"Staged:{staged.split("\n") if staged else []}")
+
+    click.echo()
+    click.echo("Last Commit")
+    click.echo("-----------")
+    click.echo(f"Author: {commit['author']}")
+    click.echo(f"Date: {commit['date']}")
+    click.echo(f"Message: {commit['message']}")
 
 #HELPERS--------------------------
 
@@ -118,6 +157,14 @@ def countLangFiles(project):
 def countLines(file):
     with open (file,"r",encoding="utf-8") as f:
         return sum(1 for line in f)
+    
+
+#Version 3
+def gitRun(args, dir):
+    #Runs git commands
+    result = subprocess.run(["git"]+args,cwd=dir,capture_output=True,text=True)
+    return result.stdout.strip()
+
 
 if __name__ == '__main__':
     cli()
