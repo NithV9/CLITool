@@ -1,11 +1,12 @@
-import click, os, subprocess
+import click, os, subprocess, json
 from pathlib import Path
 # Version 1
 @click.command()
 @click.option('-i','--directory',  type=click.Path(exists=True, file_okay=True,dir_okay=True),help='provides basic info on the directory')
-@click.option("-s","--project", type=click.Path(exists=True, file_okay=True,dir_okay=True),help='provides basic info on the directory')
+@click.option("-s","--project", type=click.Path(exists=True, file_okay=True,dir_okay=True),help='provides basic info on the size of files in directory')
 @click.option("-g","--git", type=click.Path(exists=True, file_okay=True,dir_okay=True),help='provides git info on directory')
-def cli(directory,project,git):
+@click.option("-a","--dir", type=click.Path(exists=True, file_okay=True,dir_okay=True),help='provides git info on directory')
+def cli(directory,project,git,dir):
     if directory:
         printStats(directory)
 
@@ -14,9 +15,11 @@ def cli(directory,project,git):
 
     if git:
         gitInfo(git)
+    if dir:
+        analyzeDep(dir)
 
 
-
+#Version 1
 def printStats(directory):
     click.echo(f"Project:{Path(directory).resolve().name}")
     click.echo(f"Root Directory:{os.path.abspath(directory)}")
@@ -28,12 +31,12 @@ def printStats(directory):
         click.echo("Git Repository: Yes")
     else:
         click.echo("Git Repository: No")
-
+#Version 2
 def sizeOf(project):
     click.echo("Lines of Code")
     click.echo("-------------")
     countLangFiles(project)
-
+#Version 3
 def gitInfo(git):
     click.echo("Git Status")
     click.echo("----------")
@@ -68,6 +71,34 @@ def gitInfo(git):
     click.echo(f"Author: {commit['author']}")
     click.echo(f"Date: {commit['date']}")
     click.echo(f"Message: {commit['message']}")
+
+#Version 4
+#Starting with node first
+def analyzeDep(dir):
+    pkgPath=""
+    for path,dirs,files in os.walk(dir):
+        if "package.json" in files:
+            pkgPath=os.path.join(path,"package.json")
+            break
+    
+    if not pkgPath:
+        raise Exception("No package.json found")
+    with open(pkgPath,"r") as f:
+        pkg=json.load(f)
+
+    deps=pkg.get("dependencies",{})
+    devDeps=pkg.get("devDependencies", {})
+    click.echo("Dependencies")
+    click.echo("------------")
+    click.echo(f"Production: {len(deps)}")
+    click.echo(f"Development: {len(devDeps)}")
+    click.echo()
+    click.echo("Largest Packages")
+    click.echo("----------------")
+    for i in sorted(deps.keys(), key=len, reverse=True)[:5]:
+        click.echo(i)
+
+
 
 #HELPERS--------------------------
 
