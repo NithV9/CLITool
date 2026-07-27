@@ -1,4 +1,4 @@
-import click, os, subprocess, json
+import click, os, subprocess, json, re
 from pathlib import Path
 # Version 1
 @click.command()
@@ -6,7 +6,9 @@ from pathlib import Path
 @click.option("-s","--project", type=click.Path(exists=True, file_okay=True,dir_okay=True),help='provides basic info on the size of files in directory')
 @click.option("-g","--git", type=click.Path(exists=True, file_okay=True,dir_okay=True),help='provides git info on directory')
 @click.option("-a","--dir", type=click.Path(exists=True, file_okay=True,dir_okay=True),help='provides git info on directory')
-def cli(directory,project,git,dir):
+@click.option("-c","--stats", type=click.Path(exists=True, file_okay=True,dir_okay=True),help='provides additional info on directory')
+@click.option("-h","--health", type=click.Path(exists=True, file_okay=True,dir_okay=True),help='provides health check on given directory')
+def cli(directory,project,git,dir,stats,health):
     if directory:
         printStats(directory)
 
@@ -17,6 +19,11 @@ def cli(directory,project,git,dir):
         gitInfo(git)
     if dir:
         analyzeDep(dir)
+    if stats:
+        codeStat(stats)
+
+    if health:
+        healthCheck(health)
 
 
 #Version 1
@@ -98,7 +105,17 @@ def analyzeDep(dir):
     for i in sorted(deps.keys(), key=len, reverse=True)[:5]:
         click.echo(i)
 
+#Version 5
+def codeStat(dir):
+    click.echo("Code Statistics")
+    click.echo("---------------")
+    click.echo(f"Print Statements: {printStat(dir)}")
+    click.echo(f"Empty Files:{emptyFiles(dir)}")
+    click.echo(f"Duplicate Files:{dupFiles(dir)}")
 
+#Version 6
+def healthCheck(dir):
+    pass
 
 #HELPERS--------------------------
 
@@ -195,6 +212,63 @@ def gitRun(args, dir):
     #Runs git commands
     result = subprocess.run(["git"]+args,cwd=dir,capture_output=True,text=True)
     return result.stdout.strip()
+
+#Version 5 Helpers
+def printStat(dir):
+     
+    PRINT_PATTERNS = [
+    r"console\.log\(",
+    r"console\.error\(",
+    r"console\.warn\(",
+    r"console\.debug\(",
+    r"\bprint\(",
+    r"logging\.info\(",
+    r"logging\.debug\(",
+    r"logger\.info\(",
+    r"logger\.debug\("
+    ]
+    total=0
+    regex=re.compile("|".join(PRINT_PATTERNS))
+
+
+    for root,dirs,files in os.walk(dir):
+        for file in files:
+            if file.endswith((".js",".py",".ts")):
+                path = os.path.join(root, file)
+                try:
+                    with open(path, "r", encoding="utf-8", errors="ignore") as f:
+                        content = f.read()
+                        total += len(regex.findall(content))
+                except:
+                    pass
+    return total
+                 
+
+def emptyFiles(dir):
+    total=0
+    for root, dirs, files in os.walk(dir):
+        for file in files:
+            path=os.path.join(root,file)
+            if os.path.getsize(path)==0:
+                total+=1
+    return total
+
+def dupFiles(dir):
+    hMap={}
+    count=0
+    for root,dirs, files in os.walk(dir):
+        for file in files:
+            name=Path(file).stem
+            if name in hMap:
+                hMap[name]+=1
+            else:
+                hMap[name]=1
+    
+    for file, total in hMap.items():
+        if total>1:
+            count+=1
+    
+    return count
 
 
 if __name__ == '__main__':
