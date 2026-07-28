@@ -115,7 +115,9 @@ def codeStat(dir):
 
 #Version 6
 def healthCheck(dir):
-    pass
+    click.echo("Project Health")
+    click.echo("---------------")
+    fileCheck(dir)
 
 #HELPERS--------------------------
 
@@ -270,6 +272,50 @@ def dupFiles(dir):
     
     return count
 
+
+#Version 6 Helpers
+def fileCheck(dir):
+    #README
+    readMe=False
+    license=False
+    git=False
+    env=False
+    package=False
+    for root, dirs, files in os.walk(dir):
+        if "README.md" in files:
+            readMe=True
+
+        if "LICENSE" in files:
+            license=True
+        if ".gitignore" in files:
+            git=True
+        if ".env" in files:
+            env=True
+        if "package.json" in files:
+            package=True
+
+    if readMe:
+        click.echo("README: Found")
+    else:
+        click.echo("README: Not Found")
+    
+    if license:
+        click.echo("LICENSE: Found")
+    else:
+        click.echo("LICENSE: Not Found")
+    
+    if git:
+        click.echo("Git Ignore: Found")
+    else:
+        click.echo("Git Ignore: Not Found")
+    if env:
+        click.echo(".env file: Found")
+    else:
+        click.echo(".env file: Not Found")
+    if package:
+        click.echo("Package Lock: Found")
+    else:
+        click.echo("Package Lock: Not Found")
 
 if __name__ == '__main__':
     cli()
