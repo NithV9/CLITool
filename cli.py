@@ -289,36 +289,6 @@ def folder_size(path):
     return total
 
 
-#Version 5 Helpers
-def printStat(dir):
-     
-    PRINT_PATTERNS = [
-    r"console\.log\(",
-    r"console\.error\(",
-    r"console\.warn\(",
-    r"console\.debug\(",
-    r"\bprint\(",
-    r"logging\.info\(",
-    r"logging\.debug\(",
-    r"logger\.info\(",
-    r"logger\.debug\("
-    ]
-    total=0
-    regex=re.compile("|".join(PRINT_PATTERNS))
-
-
-    for root,dirs,files in os.walk(dir):
-        dirs[:] = [d for d in dirs if d not in SKIP_DIRS]
-        for file in files:
-            if file.endswith((".js",".py",".ts")):
-                path = os.path.join(root, file)
-                try:
-                    with open(path, "r", encoding="utf-8", errors="ignore") as f:
-                        content = f.read()
-                        total += len(regex.findall(content))
-                except:
-                    pass
-    return total
                  
 
 def emptyFiles(dir):
