@@ -165,13 +165,13 @@ def analyzeDep(dir):
         click.echo(f"{pkg}: {size / 1024:.1f} KB")
     
 
-#Version 6
+#Version 5
 def healthCheck(dir):
     click.echo("Project Health")
     click.echo("---------------")
     fileCheck(dir)
 
-#Version 7
+#Version 6
 def analyzeComp(dir):
     """Analyze function-level code metrics for all .py files under DIRECTORY."""
     results = {"lengths": [], "complexities": [], "nestings": [], "warnings": 0, "files_scanned": 0}
@@ -199,8 +199,7 @@ def analyzeComp(dir):
 
 #HELPERS--------------------------
 
-#PRINTING STATS HELPERS
-
+#Version 1 helpers
 def countFilesAndDirs(directory):
     files=0
     dirs=0
@@ -235,7 +234,7 @@ def printLang(languages):
 def hasGit(directory:str)->bool:
     return (Path(directory)/".git").exists()
 
-#Version 2
+#Version 2 Helpers
 def countLangFiles(project):
     langDict={}
     maxFile=None
@@ -269,7 +268,7 @@ def countLines(file):
         return sum(1 for line in f)
     
 
-#Version 3
+#Version 3 Helpers
 def gitRun(args, dir):
     #Runs git commands
     result = subprocess.run(["git"]+args,cwd=dir,capture_output=True,text=True)
@@ -319,7 +318,7 @@ def dupFiles(dir):
     return count
 
 
-#Version 6 Helpers
+#Version 5 Helpers
 def fileCheck(dir):
     #README
     readMe=False
@@ -364,7 +363,7 @@ def fileCheck(dir):
     else:
         click.echo("Package JSON: Not Found")
 
-
+#Version 6 Helpers
 def cyclomatic_complexity(func_node):
     """
     McCabe-style cyclomatic complexity: starts at 1, +1 per decision point
