@@ -1,6 +1,8 @@
 # CLITool
 ## Description
 CLI tool created primarily with the python click library to provide basic info on a directory not limited to but including code statistics, dependency info, git status, and basic health check. Can help with getting familiarized with unknown or vague codebases.
+### Libraries
+* click, pyflakes, and pytest(for testing)
 ## Features
  #### Six independent features, each answering a different question about the target directory:
 * Usage: python cli.py {flag} {directory}      
@@ -15,8 +17,8 @@ CLI tool created primarily with the python click library to provide basic info o
 Every flag accepts a directory only (a file path is rejected with a clear error), and every scan skips .git, node_modules, __pycache__, and virtual environment folders, so results reflect the project itself rather than version control or other irrelevant code
 
 ## Testing
-Utilized Claude to create the test suites (includes the sample codebase and pytests) in test_cli.py which covers the pure logic helpers directly (complexity/nesting/length calculations, duplicate and empty-file detection) and every flag end-to-end via Click's CliRunner, including the edge cases that came up during development — an empty target directory, a non-git directory, a missing package.json, dependencies declared but not installed, and vendored code that should be excluded from the scan.
-
+* Utilized Claude to create the test suites (includes the sample codebase and pytests) in test_cli.py which covers the pure logic helpers directly (complexity/nesting/length calculations, duplicate and empty-file detection) and every flag end-to-end via Click's CliRunner, including the edge cases that came up during development — an empty target directory, a non-git directory, a missing package.json, dependencies declared but not installed, and vendored code that should be excluded from the scan.
+* Run with: pytest -v
 
 ## Constraints
 * -a's size ranking depends on node_modules reflecting what's declared in package.json — it reports installed packages accurately but has no way to estimate the size of a dependency that hasn't been installed.
