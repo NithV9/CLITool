@@ -186,7 +186,7 @@ def test_dupFiles_skips_git_dir(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# Integration tests: -i / --directory
+# Integration tests: -i / --info
 # ---------------------------------------------------------------------------
 
 class TestDashI:
@@ -216,7 +216,7 @@ class TestDashI:
 
 
 # ---------------------------------------------------------------------------
-# Integration tests: -s / --project
+# Integration tests: -s / --size
 # ---------------------------------------------------------------------------
 
 class TestDashS:
@@ -262,13 +262,13 @@ class TestDashG:
 
 
 # ---------------------------------------------------------------------------
-# Integration tests: -a / --dir
+# Integration tests: -d / --dep
 # ---------------------------------------------------------------------------
 
 class TestDashA:
     def test_missing_package_json_gives_clean_error(self, tmp_path):
         """Regression test: used to raise an unhandled Exception with a full traceback."""
-        result = CliRunner().invoke(cli, ["-a", str(tmp_path)])
+        result = CliRunner().invoke(cli, ["-d", str(tmp_path)])
         assert result.exit_code == 1
         assert result.exception is None or isinstance(result.exception, SystemExit)
         assert "No package.json found" in result.output
@@ -278,7 +278,7 @@ class TestDashA:
         (tmp_path / "package.json").write_text(
             json.dumps({"dependencies": {"lodash": "^4.0.0"}, "devDependencies": {}})
         )
-        result = CliRunner().invoke(cli, ["-a", str(tmp_path)])
+        result = CliRunner().invoke(cli, ["-d", str(tmp_path)])
         assert result.exit_code == 0
         assert "Production: 1" in result.output
         assert "node_modules not found" in result.output
@@ -302,7 +302,7 @@ class TestDashA:
         (nm / "not-declared").mkdir()
         (nm / "not-declared" / "index.js").write_bytes(b"x" * 999999)
 
-        result = CliRunner().invoke(cli, ["-a", str(tmp_path)])
+        result = CliRunner().invoke(cli, ["-d", str(tmp_path)])
         assert result.exit_code == 0
         assert "not-declared" not in result.output
 

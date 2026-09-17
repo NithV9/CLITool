@@ -22,23 +22,23 @@ language_map = {
 
 # Commands
 @click.command()
-@click.option('-i','--directory',  type=click.Path(exists=True, file_okay=False,dir_okay=True),help='provides basic info on the directory')
-@click.option("-s","--project", type=click.Path(exists=True, file_okay=False, dir_okay=True),help='provides basic info on the size of files in directory')
+@click.option('-i','--info',  type=click.Path(exists=True, file_okay=False,dir_okay=True),help='provides basic info on the directory')
+@click.option("-s","--size", type=click.Path(exists=True, file_okay=False, dir_okay=True),help='provides basic info on the size of files in directory')
 @click.option("-g","--git", type=click.Path(exists=True, file_okay=False, dir_okay=True),help='provides git info on directory')
-@click.option("-a","--dir", type=click.Path(exists=True, file_okay=False, dir_okay=True),help='analyzes dependencies on given directory')
+@click.option("-d","--dep", type=click.Path(exists=True, file_okay=False, dir_okay=True),help='analyzes dependencies on given directory')
 @click.option("-h","--health", type=click.Path(exists=True, file_okay=False, dir_okay=True),help='provides health check on given directory')
 @click.option("-t","--test", type=click.Path(exists=True, file_okay=False, dir_okay=True),help='analyzes code metrics of a directory')
-def cli(directory,project,git,dir,health,test):
-    if directory:
-        printStats(directory)
+def cli(info,size,git,dep,health,test):
+    if info:
+        printStats(info)
 
-    if project:
-        sizeOf(project)
+    if size:
+        sizeOf(size)
 
     if git:
         gitInfo(git)
-    if dir:
-        analyzeDep(dir)
+    if dep:
+        analyzeDep(dep)
 
     if health:
         healthCheck(health)
