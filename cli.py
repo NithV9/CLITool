@@ -181,7 +181,6 @@ def analyzeComp(dir):
         for file in files:
             if file.endswith(".py"):
                 filepath = os.path.join(root, file)
-                # click.echo(f"scanning {filepath}")
                 analyze_file(filepath, results)
  
     if not results["lengths"]:
@@ -203,7 +202,6 @@ def analyzeComp(dir):
 def countFilesAndDirs(directory):
     files=0
     dirs=0
-    languages=[]
     for root,dir,file in os.walk(directory):
         dir[:] = [d for d in dir if d not in SKIP_DIRS]
         files+=len(file)
@@ -314,7 +312,6 @@ def dupFiles(dir):
     for file, total in hMap.items():
         if total>1:
             count+=1
-    # print(f"duplicates:{hMap.items()}")
     return count
 
 
